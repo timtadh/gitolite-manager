@@ -1,0 +1,7 @@
+SQLAlchemy
+alembic
+nose
+optutils>=.2.6
+pyramid
+uWSGI
+oursql
