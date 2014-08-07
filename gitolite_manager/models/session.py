@@ -111,10 +111,14 @@ class Session(Base):
         self.resign()
         return True
 
-    def update_user(self, cuser):
+    def update_user(self, db, cuser):
         if not self.authenticated: return False
+        cuser.access = datetime.datetime.utcnow()
         self.user_id = cuser.id
         self.newkey()
+        db.add(self)
+        db.add(cuser)
+        db.commit()
         log.debug('user set and new key issued', self.key)
         return True
 

@@ -9,7 +9,7 @@
 {% endblock %}
 
 {%- block content %}
-<h1>Hi {{ session.user.email }}, here are your keys</h1>
+<h1>Hi {{ user_name }}, here are your keys</h1>
 <a href={{ request.route_url("user/addkey") }}>Add another one</a>
 <ul>
 {% for key in session.user.keys %}

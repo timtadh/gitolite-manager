@@ -28,9 +28,9 @@ def add_key(db, user, key):
             subprocess.check_call(['ssh-keygen', '-lf', path])
     except subprocess.CalledProcessError, e:
         print user, key, path
-        raise HTTPBadRequest("That key was not in the correct format")
+        raise Exception("That key was not in the correct format")
     except Exception, e:
-        raise HTTPBadRequest("There was a problem adding that key: "+ str(e) + " " + str(type(e)))
+        raise Exception("There was a problem adding that key: "+ str(e) + " " + str(type(e)))
     key = Key(user, key)
     db.add(key)
     db.commit()

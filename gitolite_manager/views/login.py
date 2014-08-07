@@ -85,7 +85,7 @@ def login(request):
         user = User(email)
         db.add(user)
         db.commit()
-    if not session.update_user(user):
+    if not session.update_user(db, user):
         raise HTTPBadRequest("Bad session")
 
     return HTTPFound(request.application_url)

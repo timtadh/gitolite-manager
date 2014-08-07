@@ -27,7 +27,7 @@ from gitolite_manager.controllers import key_controller
 def tvars(request, extras):
     session = request.environ['gm_session']
     defaults = {
-        'SITENAME' : '337 Key Manager',
+        'SITENAME' : 'Key Czar',
         'SITEURL' : request.application_url,
         'request' : request,
         'session' : session,
@@ -44,12 +44,13 @@ def user(request):
     db = request.environ['db.session']
     session = request.environ['gm_session']
     if session.user is None:
-        return HTTPFound(request.application_url + "/login")
+        return HTTPFound(request.application_url)
 
     email = session.user.email
     user = email[:email.index('@')]
     return tvars(request, {
         'TITLE' : user + ' user',
+        'user_name' : user,
         'keys_url': request.route_url('user/keys'),
         'add_key_url': request.route_url('user/addkey'),
         'partners_url': request.route_url('user/partners'),
@@ -65,12 +66,13 @@ def keys(request):
     db = request.environ['db.session']
     session = request.environ['gm_session']
     if session.user is None:
-        return HTTPFound(request.application_url + "/login")
+        return HTTPFound(request.application_url)
 
     email = session.user.email
     user = email[:email.index('@')]
     return tvars(request, {
         'TITLE' : 'keys for %s' % user,
+        'user_name' : user,
     })
 
 
@@ -83,12 +85,13 @@ def addkey(request):
     db = request.environ['db.session']
     session = request.environ['gm_session']
     if session.user is None:
-        return HTTPFound(request.application_url + "/login")
+        return HTTPFound(request.application_url)
 
     email = session.user.email
     user = email[:email.index('@')]
     return tvars(request, {
         'TITLE' : 'add key for %s' % user,
+        'user_name' : user,
     })
 
 addkey_schema = {
@@ -105,7 +108,7 @@ def addkey_post(request):
     db = request.environ['db.session']
     session = request.environ['gm_session']
     if session.user is None:
-        return HTTPFound(request.route_url("login"))
+        return HTTPFound(request.route_url("root"))
 
     email = session.user.email
     user = email[:email.index('@')]
@@ -114,12 +117,20 @@ def addkey_post(request):
     if err:
         return tvars(request, {
             'TITLE' : 'add key for %s' % user,
+            'user_name' : user,
             'errors': err,
         })
     elif not session.valid_csrf(post['csrf'], request.route_url('user/addkey')):
         return HTTPFound(request.route_url('root'))
     else:
-        key_controller.add_key(db, session.user, post['key'])
+        try:
+            key_controller.add_key(db, session.user, post['key'])
+        except Exception, e:
+            return tvars(request, {
+                'TITLE' : 'add key for %s' % user,
+                'user_name' : user,
+                'errors': [e],
+            })
         return HTTPFound(request.route_url('user/keys'))
 
 rmkey_schema = {
@@ -136,7 +147,7 @@ def rmkey(request):
     db = request.environ['db.session']
     session = request.environ['gm_session']
     if session.user is None:
-        return HTTPFound(request.application_url + "/login")
+        return HTTPFound(request.application_url)
 
     email = session.user.email
     user = email[:email.index('@')]
@@ -145,8 +156,16 @@ def rmkey(request):
     if err:
         return tvars(request, {
             'TITLE' : 'remove key for %s' % user,
+            'user_name' : user,
             'errors': err,
         })
-    key_controller.rm_key(db, session.user, int(match['keyid']))
+    try:
+        key_controller.rm_key(db, session.user, int(match['keyid']))
+    except Exception, e:
+        return tvars(request, {
+            'TITLE' : 'remove key for %s' % user,
+            'user_name' : user,
+            'errors': [str(e)],
+        })
     return HTTPFound(request.route_url('user/keys'))
 

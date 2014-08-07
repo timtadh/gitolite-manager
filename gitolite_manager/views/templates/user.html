@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-
-
 {%- block title %} {{ TITLE }} {% endblock title -%}
 
 {% block headers %}
@@ -9,7 +7,7 @@
 {% endblock %}
 
 {%- block content %}
-    Hi {{ session.user.email }}
+    Hi {{ user_name }}
     <p> <a href={{ request.route_url("user/keys") }}>See your keys</a> </p>
     <p> <a href={{ request.route_url("user/addkey") }}>Add a key</a> </p>
     <p> <a href={{ request.route_url("user/partners") }}>View and edit your partners</a> </p>
