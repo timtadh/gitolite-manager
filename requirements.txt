@@ -5,3 +5,4 @@ optutils>=.2.6
 pyramid
 uWSGI
 oursql
+requests

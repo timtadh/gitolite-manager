@@ -156,6 +156,13 @@ def min_length_checker(data, length):
             "Sequence, '%s', less than %d items long" % (str(data), int(length))]
     return True, list()
 
+@checker
+def format_checker(data, regex):
+    if not regex.match(data):
+        return False, [
+            "string, '%s', did not match %s" % (str(data), str(regex))]
+    return True, list()
+
 
 def column_checker(column):
     pytype = column.type.python_type
