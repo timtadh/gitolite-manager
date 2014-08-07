@@ -1,0 +1,267 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+'''
+gitolite-manager
+Author: Tim Henderson
+Contact: tim.tadh@gmail.com, tadh@case.edu
+Copyright: 2013 All Rights Reserved, see LICENSE
+'''
+
+import os, sys, subprocess, tempfile, contextlib
+import optutils
+from optutils import output, log, error_codes, add_code
+
+__version__ = 'git master'
+
+add_code('version')
+add_code('conf-write')
+
+def version():
+    '''Print version and exits'''
+    log('version :', __version__)
+    sys.exit(error_codes['version'])
+
+@optutils.main(
+    'usage: manage <command>',
+    '''
+    Example:
+
+    Options
+        -h, help                      print this message
+        -v, version                   print the version
+    ''',
+    'hv',
+    ['help', 'version'],
+)
+def main(argv, util, parser):
+    """
+    The main entry point to the program
+    """
+    root = util.assert_dir_exists(os.environ['GITOLITE_MANAGER_ROOT'])
+
+    @contextlib.contextmanager
+    def config(config_path):
+        config = util.read_file_or_die(config_path)
+        config = os.path.expandvars(config)
+
+        fd, path = tempfile.mkstemp(
+            prefix='.gm-config-',
+            suffix='.ini',
+            dir=root,
+        )
+        try:
+            f = os.fdopen(fd, 'w', -1)
+        except:
+            log('could not open fd')
+            sys.exit(error_codes['conf-write'])
+
+        try:
+            f.write(config)
+            f.close()
+        except:
+            f.close()
+            os.unlink(path)
+            log("error creating conf file")
+            sys.exit(error_codes['conf-write'])
+
+        try:
+            yield path
+        finally:
+            os.unlink(path)
+
+    @util.command(
+        'start <config>',
+        '''
+        Options
+            -h, help                      print this message
+            -s, server=<server>           which server to use
+
+        Specs
+            <server>                      uwsgi, pserve
+        ''',
+        'hs:',
+        ['help', 'server=', ],
+    )
+    def start(argv, util, parser):
+        opts, args = parser(argv)
+
+        servers = set(['uwsgi', 'pserve'])
+        server = 'uwsgi'
+        for opt, arg in opts:
+            if opt in ('-h', '--help',):
+                util.usage()
+            elif opt in ('-s', '--server',):
+                server = util.assert_in(arg, servers)
+
+        if len(args) < 1:
+            log("A config file is required")
+            util.usage(error_codes['option'])
+
+        def uwsgi(config_path):
+            uwsgi_cmd = [
+                'uwsgi',
+                '--ini-paste-logged', config_path,
+            ]
+            subprocess.check_call(uwsgi_cmd)
+
+        def pserve(config_path):
+            pserve_cmd = [
+                'pserve',
+                config_path,
+                '--reload',
+            ]
+            subprocess.check_call(pserve_cmd)
+
+        with config(args[0]) as path:
+            if server == 'pserve': pserve(path)
+            elif server == 'uwsgi': uwsgi(path)
+
+    @util.command(
+        'test [--cov] <config> [<nose-opts>] [<path>]',
+        '''
+        Options
+            -h, help                      print this message
+            -s, server=<server>           which server to use
+
+        Specs
+            <config>                      what ini file to use
+            <path>                        path to test on
+            <nose-opts>                   extra args to nose (-v) always
+                                          supplied
+
+        ''',
+        'h',
+        ['help', 'cov', ],
+    )
+    def test(argv, util, parser):
+        cov_dir = os.path.join(root, 'cov')
+        opts, args = parser(argv)
+        nose_opts = []
+        for opt, arg in opts:
+            if opt in ('-h', '--help',):
+                util.usage()
+            elif opt in ('--cov',):
+                nose_opts += [
+                    '--with-coverage', '--cover-branches', '--cover-erase',
+                    '--cover-package=gitolite_manager',
+                    '--cover-html',
+                    '--cover-html-dir=%s' % cov_dir
+                ]
+
+        if len(args) < 1:
+            log("A config file is required")
+            util.usage(error_codes['option'])
+
+        nose_opts += args[1:]
+
+        def nosetests(config_path):
+            nosetests_cmd = [
+                'nosetests',
+                '-v'
+            ] + nose_opts
+            environ = dict(os.environ)
+            environ['TEST_INI'] = config_path
+            subprocess.call(nosetests_cmd, env=environ)
+
+        with config(args[0]) as path: nosetests(path)
+
+
+    @util.command(
+        'db <config>',
+        '''
+        This command can create a drop a database for a given config. Must have
+        the key 'root.sqlalchemy.url' in [main:app] to connect to as the root
+        user.
+
+        Options
+            -h, help                      print this message
+
+        ''',
+        'h',
+        ['help', ],
+    )
+    def db(argv, util, parser):
+        from pyramid.paster import get_appsettings
+        from sqlalchemy import create_engine
+        from sqlalchemy import engine_from_config, pool
+        from alembic.config import Config
+        from alembic import command
+
+        from gitolite_manager.models import Base
+
+        opts, args = parser(argv)
+
+
+        @util.command(
+            'create-tables',
+            '''
+            Options
+                -h, help                      print this message
+
+            ''',
+            'h',
+            ['help', ],
+        )
+        def create_tables(argv, util, parser):
+            opts, args = parser(argv)
+            for opt, arg in opts:
+                if opt in ('-h', '--help',):
+                    util.usage()
+            Base.metadata.create_all(engine)
+            command.stamp(conf, "head")
+
+        @util.command(
+            'migrate [alembic args]',
+            '''
+            Options
+                -h, help                      print this message
+            ''',
+            'h',
+            ['help', ],
+        )
+        def migrate(argv, util, parser):
+            opts, args = parser(argv)
+            for opt, arg in opts:
+                if opt in ('-h', '--help',):
+                    util.usage()
+
+            def alembic(config_path):
+                alembic = [
+                    'alembic',
+                    '--config', config_path,
+                ] + args
+                subprocess.call(alembic)
+
+            alembic(config_uri)
+
+        for opt, arg in opts:
+            if opt in ('-h', '--help',):
+                util.usage()
+
+        if len(args) < 1:
+            log("A config file is required")
+            util.usage(error_codes['option'])
+
+        with config(args[0]) as config_uri:
+            settings = get_appsettings(config_uri)
+            conf = Config(config_uri)
+            engine = engine_from_config(
+                conf.get_section(conf.config_ini_section),
+                prefix='sqlalchemy.',
+                poolclass=pool.NullPool)
+            util.run_command(args[1:])
+
+
+    opts, args = parser(argv)
+    for opt, arg in opts:
+        if opt in ('-h', '--help',):
+            util.usage()
+        elif opt in ('-v', '--version',):
+            version()
+
+    util.run_command(args)
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
+
