@@ -20,6 +20,7 @@ from gitolite_manager.models import Base, user
 class Session(Base):
     __tablename__ = 'session'
     __table_args__ = {'mysql_engine':'InnoDB'}
+
     id = sa.Column(sa.Integer, primary_key=True, index=True, unique=True)
     key = sa.Column(sa.String(64), index=True, unique=True)
     sig = sa.Column(sa.LargeBinary(32))
@@ -28,7 +29,9 @@ class Session(Base):
     csrf = sa.Column(sa.LargeBinary(32))
     user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'))
     last_update = sa.Column(sa.DateTime, index=True)
+
     user = sa.orm.relationship(user.User, backref=sa.orm.backref('sessions', order_by=id, ))
+
 
     def __init__(self, ipaddr, useragent):
         self.last_update = datetime.datetime.utcnow()

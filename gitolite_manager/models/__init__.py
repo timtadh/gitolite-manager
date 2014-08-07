@@ -14,5 +14,5 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 DBSessionFactory = sessionmaker(autoflush=True, autocommit=False)
 Base = declarative_base()
 
-import user, session
+import user, session, repo, keys
 

@@ -36,8 +36,9 @@ def get_root(request):
     session = request.environ['gm_session']
     if session.user is None:
         return HTTPFound(cas_url + 'login?service=' +
-            urllib.quote(request.application_url + "/login"))
-    return Response('Hello ' + str(session.user.email))
+            urllib.quote(request.route_url("login")))
+    return HTTPFound(request.route_url("user"))
+
 
 login_schema = {
   'ticket':
@@ -62,7 +63,7 @@ def login(request):
        cas_url + 'serviceValidate?ticket=' +
       urllib.quote(get['ticket']) +
       '&service=' +
-      urllib.quote(request.application_url + "/login")
+      urllib.quote(request.route_url("login"))
     )
     email = None
     if 'cas:authenticationSuccess' in cas_response.text:
@@ -75,7 +76,7 @@ def login(request):
             raise HTTPBadRequest("CAS auth failure")
     elif 'cas:authenticationFailure' in cas_response.text:
         return HTTPFound(cas_url + 'login?service=' +
-            urllib.quote(request.application_url + "/login"))
+            urllib.quote(request.route_url("login")))
     else:
         raise HTTPBadRequest("Unexpected result from CAS")
 

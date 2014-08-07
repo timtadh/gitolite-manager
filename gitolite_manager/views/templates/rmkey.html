@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+
+{%- block title %} {{ TITLE }} {% endblock title -%}
+
+{% block headers %}
+    {{ super() }}
+{% endblock %}
+
+{%- block content %}
+<h1> {{ session.user.email }} tried to remove a key </h1>
+
+{% if errors %}
+<ul>
+  {% for e in errors %}
+    <li>{{ e }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+{% endblock content -%}
+

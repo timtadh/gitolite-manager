@@ -6,3 +6,5 @@ pyramid
 uWSGI
 oursql
 requests
+pyramid_jinja2
+

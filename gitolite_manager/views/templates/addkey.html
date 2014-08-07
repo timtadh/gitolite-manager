@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+
+
+{%- block title %} {{ TITLE }} {% endblock title -%}
+
+{% block headers %}
+    {{ super() }}
+{% endblock %}
+
+{%- block content %}
+<h1> {{ session.user.email }} add a key </h1>
+
+{% if errors %}
+<ul>
+  {% for e in errors %}
+    <li>{{ e }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<form action={{ request.route_url("user/addkey") }} method=post>
+  <textarea name=key></textarea>
+
+  <button type=submit>Add this key</button>
+</form>
+{% endblock content -%}
+

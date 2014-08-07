@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="{{ article.lang if article and article.lang else DEFAULT_LANG }}">
+  <head>
+  {% block headers %}
+    <meta charset="utf-8" />
+    <title>{% block title %}{{ SITENAME }}{%endblock%}</title>
+    <meta name="viewport" content="initial-scale=1.0, width=device-width, user-scalable=yes" />
+    <link href='http://fonts.googleapis.com/css?family=Alice' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lora:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="{{ SITEURL }}/theme/css/skeleton.css" />
+    <link rel="stylesheet" type="text/css" href="{{ SITEURL }}/theme/css/theme.css" />
+    <link rel="shortcut icon" type="image/png" href="{{ SITEURL }}/favicon.png" />
+  {% endblock headers %}
+  </head>
+  <body>
+    <div id="page">
+      <header id="page-head">
+        <h1>
+          <a href="{{ SITEURL }}">{{ SITENAME }}</a>
+        </h1>
+        <div class="top-nav">
+        </div>
+      </header>
+
+      <div id="page-body">
+
+      {% block content %}
+      {% endblock content %}
+
+      </div>  <!-- /#page-body -->
+
+      <footer id="page-foot">
+        <p>Copyright 2014 Tim Henderson. All Rights Reserved.</p>
+      </footer>
+    </div> <!-- /#page -->
+  </body>
+</html>
+

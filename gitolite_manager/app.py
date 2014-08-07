@@ -16,12 +16,14 @@ import sqlalchemy as sa
 from pyramid.config import Configurator
 from pyramid.response import Response
 from pyramid.request import Request
+import pyramid_jinja2
 from sqlalchemy import engine_from_config
 
 from gitolite_manager.models import Base, DBSessionFactory
 from gitolite_manager.models.session import Session
 from gitolite_manager.models.user import User
 
+ROOT = os.environ['GITOLITE_MANAGER_ROOT']
 
 def config_ware(app, config):
     def ware(environ, start_response):
@@ -149,8 +151,18 @@ def cookie_session(app):
     return ware
 
 def routes(config):
-    config.add_route('root', r'/')
-    config.add_route('login', r'/login')
+    config.add_route(r'root', r'/')
+    config.add_route(r'login', r'/login')
+    config.add_route(r'user', r'/user')
+    config.add_route(r'user/keys', r'/user/keys')
+    config.add_route(r'user/addkey', r'/user/addkey')
+    config.add_route(r'user/rmkey', r'user/rmkey/{keyid:[0-9]+}',)
+    config.add_route(r'user/partners', r'/user/partners')
+    config.add_route(r'user/add-partner',
+            r'user/add-partner/{project:[a-zA-Z][a-zA-Z0-9_-]*}/{name:[a-z]+[0-9]*}')
+
+    config.add_static_view(name='static', path=os.path.join(ROOT, 'static', ''))
+
     config.scan()
 
 def main(global_config, **settings):
@@ -159,6 +171,8 @@ def main(global_config, **settings):
     engine = engine_from_config(settings, 'sqlalchemy.')
     Base.metadata.bind = engine
     config = Configurator(settings=settings)
+    config.include('pyramid_jinja2')
+    config.add_jinja2_renderer('.html')
     routes(config)
     app = config.make_wsgi_app()
     app = cookie_session(app)
