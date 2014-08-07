@@ -13,8 +13,8 @@
 <a href={{ request.route_url("user/addkey") }}>Add another one</a>
 <ul>
 {% for key in session.user.keys %}
-<li><a href={{ request.route_url('user/rmkey', keyid=key.id) }}>remove key</a> {{key.key}}</li>
-{% endfor %}
+<li><a href={{ request.route_url('user/rmkey', keyid=key.id) }}>remove key</a>
+<code>{{key.key.split(' ', 1)[0]}} {{key.key.split(' ', 1)[1][:5]}} ... {{ key.key.rsplit(' ', 1)[0][-10:]}} {{ key.key.rsplit(' ', 1)[1] }}</code></li> {% endfor %}
 </ul>
 {% endblock content -%}
 

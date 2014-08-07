@@ -93,6 +93,7 @@ def addkey(request):
 
 addkey_schema = {
     'key': v.type_checker(basestring) & v.min_length_checker(1),
+    'csrf': v.type_checker(basestring)
 }
 
 @view_config(
@@ -115,6 +116,8 @@ def addkey_post(request):
             'TITLE' : 'add key for %s' % user,
             'errors': err,
         })
+    elif not session.valid_csrf(post['csrf'], request.route_url('user/addkey')):
+        return HTTPFound(request.route_url('root'))
     else:
         key_controller.add_key(db, session.user, post['key'])
         return HTTPFound(request.route_url('user/keys'))
@@ -146,3 +149,4 @@ def rmkey(request):
         })
     key_controller.rm_key(db, session.user, int(match['keyid']))
     return HTTPFound(request.route_url('user/keys'))
+

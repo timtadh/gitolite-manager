@@ -158,8 +158,7 @@ def routes(config):
     config.add_route(r'user/addkey', r'/user/addkey')
     config.add_route(r'user/rmkey', r'user/rmkey/{keyid:[0-9]+}',)
     config.add_route(r'user/partners', r'/user/partners')
-    config.add_route(r'user/add-partner',
-            r'user/add-partner/{project:[a-zA-Z][a-zA-Z0-9_-]*}/{name:[a-z]+[0-9]*}')
+    config.add_route(r'user/add-partner', r'user/add-partner')
 
     config.add_static_view(name='static', path=os.path.join(ROOT, 'static', ''))
 

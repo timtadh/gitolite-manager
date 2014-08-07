@@ -21,8 +21,9 @@
 
 <form action={{ request.route_url("user/addkey") }} method=post>
   <textarea name=key></textarea>
-
+  <input type=hidden name=csrf value="{{ session.csrf_token(request.route_url("user/addkey")) }}"></input>
   <button type=submit>Add this key</button>
 </form>
+
 {% endblock content -%}
 

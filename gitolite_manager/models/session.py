@@ -66,9 +66,9 @@ class Session(Base):
         for x in xrange(10000): h.update(h.digest())
         return h.hexdigest()
 
-    def valid_csrf(self, token):
-        current = self.csrf_token()
-        return curren == token
+    def valid_csrf(self, token, url):
+        current = self.csrf_token(url)
+        return current == token
 
     def newkey(self):
         #print 'making a new key'
