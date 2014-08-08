@@ -159,6 +159,7 @@ def routes(config):
     config.add_route(r'user/rmkey', r'user/rmkey/{keyid:[0-9]+}',)
     config.add_route(r'user/partners', r'/user/partners')
     config.add_route(r'user/add-partner', r'user/add-partner')
+    config.add_route(r'user/rm-partner', r'user/rm-partner/{repo_id:[0-9]+}')
 
     config.add_static_view(name='static', path=os.path.join(ROOT, 'static', ''))
 

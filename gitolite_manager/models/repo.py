@@ -33,7 +33,7 @@ class Repo(Base):
         foreign_keys=[user_id])
     partner = sa.orm.relationship(User,
         backref=sa.orm.backref('partner_repos', order_by=id), 
-        foreign_keys=[user_id])
+        foreign_keys=[partner_id])
 
 
     def __init__(self, user, partner, name):

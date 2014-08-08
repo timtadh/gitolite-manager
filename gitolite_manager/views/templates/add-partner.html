@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+
+
+{%- block title %} {{ TITLE }} {% endblock title -%}
+
+{% block headers %}
+    {{ super() }}
+{% endblock %}
+
+{%- block content %}
+<h1> {{ user_name }} partners </h1>
+
+<h1> Add a Partner</h1>
+<form action={{ request.route_url("user/add-partner") }} method=post>
+  {% if errors %}
+  <ul>
+    {% for e in errors %}
+      <li>{{ e }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <input type=hidden name=csrf value="{{ session.csrf_token(request.route_url("user/add-partner")) }}"></input>
+  <div>
+    <label for="case_id">case-id:</label>
+    <input type="text" name="case_id" ></input>
+  </div>
+  <div>
+    <label for="repo_name">repo-name: {{ user_name }}/</label>
+    <input type="text" name="repo_name" ></input>
+  </div>
+  <div class="button">
+    <button type="submit">Add your partner</button>
+  </div>
+</form>
+
+<h1>Partner's I've Added</h1>
+<ul>
+{% for repo in session.user.repos %}
+<li>{{ get_user_name(repo.partner) }} on {{ get_user_name(repo.user) }}/{{ repo.name }}
+<a href={{ request.route_url('user/rm-partner', repo_id=repo.id) }}>remove partner</a>
+</li>
+{% endfor %}
+</ul>
+
+<h1>Partner's Who Have Added Me</h1>
+<ul>
+{% for repo in session.user.partner_repos %}
+<li>{{ get_user_name(repo.partner) }} on {{ get_user_name(repo.user) }}/{{ repo.name }}</li>
+{% endfor %}
+</ul>
+
+{% endblock content -%}
+
+
