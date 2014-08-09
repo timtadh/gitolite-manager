@@ -21,6 +21,7 @@ from pyramid.httpexceptions import HTTPFound, HTTPBadRequest
 from pyramid.response import Response
 
 from gitolite_manager import validate as v
+from gitolite_manager.controllers import user_controller
 from gitolite_manager.models.session import Session
 from gitolite_manager.models.user import User
 
@@ -65,12 +66,12 @@ def login(request):
       '&service=' +
       urllib.quote(request.route_url("login"))
     )
-    email = None
+
+    case_id = None
     if 'cas:authenticationSuccess' in cas_response.text:
         try:
             root = ET.fromstring(cas_response.text)
             case_id = root.getchildren()[0].getchildren()[0].text
-            email = '%s@case.edu' % case_id
         except Exception, e:
             log.error(e)
             raise HTTPBadRequest("CAS auth failure")
@@ -80,11 +81,10 @@ def login(request):
     else:
         raise HTTPBadRequest("Unexpected result from CAS")
 
+    email = '%s@case.edu' % case_id
     user = db.query(User).filter_by(email=email).first()
     if user is None:
-        user = User(email)
-        db.add(user)
-        db.commit()
+        user = user_controller.add_user(db, case_id)
     if not session.update_user(db, user):
         raise HTTPBadRequest("Bad session")
 
