@@ -10,6 +10,7 @@ Copyright: 2013 All Rights Reserved, see LICENSE
 
 
 import urllib, re
+import cgi
 from logging import getLogger
 log = getLogger('gm:view:user')
 
@@ -37,6 +38,7 @@ def tvars(request, extras):
         'get_user_name' : get_user_name,
     }
     defaults.update(extras)
+    print defaults
     return defaults
 
 @view_config(
@@ -99,7 +101,7 @@ def addkey(request):
     })
 
 addkey_schema = {
-    'key': v.type_checker(basestring) & v.min_length_checker(1),
+    'key': v.type_checker(cgi.FieldStorage),
     'csrf': v.type_checker(basestring)
 }
 
@@ -128,8 +130,10 @@ def addkey_post(request):
         return HTTPFound(request.route_url('root'))
     else:
         try:
-            key_controller.add_key(db, session.user, post['key'])
+            key = post['key'].file.read()
+            key_controller.add_key(db, session.user, key)
         except Exception, e:
+            log.exception(e)
             return tvars(request, {
                 'TITLE' : 'add key for %s' % user,
                 'user_name' : user,
