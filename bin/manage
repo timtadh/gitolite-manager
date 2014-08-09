@@ -71,6 +71,43 @@ def main(argv, util, parser):
             os.unlink(path)
 
     @util.command(
+        'gitolite-admin <config>',
+        '''
+        Options
+            -h, help                      print this message
+
+        ''',
+        'h',
+        ['help', ],
+    )
+    def gitolite_admin(argv, util, parser):
+        from pyramid.paster import get_appsettings
+        opts, args = parser(argv)
+
+        servers = set(['uwsgi', 'pserve'])
+        server = 'uwsgi'
+        for opt, arg in opts:
+            if opt in ('-h', '--help',):
+                util.usage()
+
+        if len(args) < 1:
+            log("A config file is required")
+            util.usage(error_codes['option'])
+
+
+        with config(args[0]) as path:
+            settings = get_appsettings(path)
+            host = settings['gitolite_host']
+            loc = os.path.join(root, 'gitolite-admin')
+            cmd = [ 'git', 'clone', 'git@%s:gitolite-admin' % host, loc]
+            try:
+                log('>', ' '.join(cmd))
+                subprocess.check_call(cmd)
+            except:
+                log('command failed')
+
+
+    @util.command(
         'start <config>',
         '''
         Options

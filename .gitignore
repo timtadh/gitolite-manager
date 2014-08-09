@@ -1,10 +1,17 @@
 *.swp
 *.swo
 
+# ignore the admin repo
+gitolite-admin
+
 # ignore the databases
 
 *.sqlite
 *.db
+
+# ignore configs
+
+.gm*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
