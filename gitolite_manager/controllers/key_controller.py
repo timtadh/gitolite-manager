@@ -23,6 +23,8 @@ from gitolite_manager.controllers.git import (
 
 def add_key(db, user, key):
     key = key.strip()
+    if 'PRIVATE' in key:
+        raise Exception('You must submit the public key not the private')
     try:
         with tempfile.NamedTemporaryFile() as t:
             t.write(key)
