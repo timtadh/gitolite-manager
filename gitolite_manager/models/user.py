@@ -37,3 +37,5 @@ class User(Base):
     def __repr__(self):
         return '<User %r, %s, %s>' % (self.email, self.created, self.access)
 
+    def name(self):
+        return self.email[:self.email.index('@')]

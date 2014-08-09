@@ -9,12 +9,14 @@ Copyright: 2013 All Rights Reserved, see LICENSE
 '''
 
 
+import os
 import logging
 log = logging.getLogger('gm:models:keys')
 
 import sqlalchemy as sa
 
 from gitolite_manager.models import Base, user
+from gitolite_manager.controllers.config import ROOT, ADMIN, KEY_DIR
 
 
 class Key(Base):
@@ -32,4 +34,5 @@ class Key(Base):
         self.user = user
         self.key = key
 
-
+    def path(self):
+        return os.path.join(KEY_DIR, '%s@%d.pub' % (self.user.name(), self.id))

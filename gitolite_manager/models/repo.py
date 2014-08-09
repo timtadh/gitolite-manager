@@ -9,7 +9,7 @@ Copyright: 2013 All Rights Reserved, see LICENSE
 '''
 
 
-
+import os
 import logging
 log = logging.getLogger('gm:models:repo')
 
@@ -17,6 +17,7 @@ import sqlalchemy as sa
 
 from gitolite_manager.models import Base
 from gitolite_manager.models.user import User
+from gitolite_manager.controllers.config import ROOT, ADMIN, REPOS_DIR
 
 
 class Repo(Base):
@@ -42,3 +43,5 @@ class Repo(Base):
         self.name = name
 
 
+    def path(self):
+        return os.path.join(REPOS_DIR, '%d.conf' % (self.id,))
