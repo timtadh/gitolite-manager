@@ -29,8 +29,9 @@ def add_partner(db, user, partner_case_id, repo_name):
     if partner is None:
         raise Exception, "Partner has not yet made an account"
 
-    has = db.query(Repo).filter(Repo.user_id==user.id and
-        Repo.partner_id==partner.id and Repo.name == repo_name).first()
+    has = db.query(Repo).filter((Repo.user_id==user.id) &
+                                (Repo.partner_id==partner.id) &
+                                (Repo.name == repo_name)).first()
     if has:
         raise Exception, "You have already associated your partner with that repository"
     repo = Repo(user, partner, repo_name)

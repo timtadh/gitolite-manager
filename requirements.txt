@@ -1,8 +1,11 @@
 SQLAlchemy
+pyramid
+Paste
+PasteDeploy
+PasteScript
 alembic
 nose
 optutils>=.2.6
-pyramid
 uWSGI
 oursql
 requests

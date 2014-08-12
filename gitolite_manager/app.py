@@ -10,7 +10,7 @@ Copyright: 2013 All Rights Reserved, see LICENSE
 
 import os, sys, time, datetime
 from logging import getLogger
-log = getLogger('gitolite-manger')
+log = getLogger('gitolite-manager')
 
 import sqlalchemy as sa
 from pyramid.config import Configurator
