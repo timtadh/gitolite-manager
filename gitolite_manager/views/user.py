@@ -38,7 +38,6 @@ def tvars(request, extras):
         'get_user_name' : get_user_name,
     }
     defaults.update(extras)
-    print defaults
     return defaults
 
 @view_config(
