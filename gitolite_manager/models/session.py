@@ -56,8 +56,8 @@ class Session(Base):
         log.debug('new csrf secret %s' % self.csrf.encode('hex'))
 
     def csrf_token(self, url):
-        log.debug('csrf token url', url)
-        log.debug('csrf secret', self.csrf.encode('hex'))
+        log.debug('csrf token url %s' % url)
+        log.debug('csrf secret %s' %  self.csrf.encode('hex'))
         h = hmac.new('', digestmod=hashlib.sha256)
         h.update(self.csrf)
         h.update(url)
@@ -119,7 +119,7 @@ class Session(Base):
         db.add(self)
         db.add(cuser)
         db.commit()
-        log.debug('user set and new key issued', self.key)
+        log.debug('user set and new key issued %s' % self.key)
         return True
 
     def logout(self):
