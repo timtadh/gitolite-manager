@@ -21,13 +21,30 @@ from gitolite_manager.controllers.git import (
     git_add, git_rm, git_commit, git_push
 )
 
+PREFIXES = set([
+  'ssh-ed25519', 'ssh-rsa', 'ssh-dss', 'ecdsa-sha2-nistp256',
+  'ecdsa-sha2-nistp384', 'ecdsa-sha2-nistp521',
+
+])
+
+
+def validate_prefix(key):
+    split = key.split(' ', 1)
+    if len(split) == 2:
+        prefix, rest = split
+        if prefix in PREFIXES:
+            return
+    raise Exception, "key was not in the correct format"
+
+
 def add_key(db, user, key):
     key = key.strip()
     if 'PRIVATE' in key:
         raise Exception('You must submit the public key not the private')
+    validate_prefix(key)
     try:
-        with tempfile.NamedTemporaryFile() as t:
-            t.write(key)
+        with tempfile.NamedTemporaryFile(suffix=".pub") as t:
+            t.write(key + "\n")
             t.flush()
             path = t.name
             subprocess.check_call(['ssh-keygen', '-lf', path])
