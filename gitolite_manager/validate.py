@@ -160,7 +160,7 @@ def min_length_checker(data, length):
 def format_checker(data, regex):
     if not regex.match(data):
         return False, [
-            "string, '%s', did not match %s" % (str(data), str(regex))]
+            "string, '%s', did not match %s" % (str(data), str(regex.pattern))]
     return True, list()
 
 

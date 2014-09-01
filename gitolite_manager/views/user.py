@@ -142,7 +142,7 @@ def addkey_post(request):
 
 rmkey_schema = {
     'keyid': v.type_checker(basestring) &
-             v.format_checker(re.compile(r'[0-9]+')),
+             v.format_checker(re.compile(r'^[0-9]+$')),
 }
 
 @view_config(
@@ -197,9 +197,9 @@ def partners(request):
 add_partner_schema = {
     'csrf': v.type_checker(basestring),
     'case_id': v.type_checker(basestring) &
-               v.format_checker(re.compile(r'[a-z]{3}[0-9]*')),
+               v.format_checker(re.compile(r'^[a-z]{3}[0-9]*$')),
     'repo_name': v.type_checker(basestring) &
-                 v.format_checker(re.compile(r'[a-zA-Z][a-zA-Z0-9_-]*')),
+                 v.format_checker(re.compile(r'^[a-zA-Z][a-zA-Z0-9_-]*$')),
 }
 
 @view_config(
@@ -239,7 +239,7 @@ def add_partners(request):
 
 rm_partner_schema = {
     'repo_id': v.type_checker(basestring) &
-               v.format_checker(re.compile(r'[0-9]+')),
+               v.format_checker(re.compile(r'^[0-9]+$')),
 }
 
 @view_config(
