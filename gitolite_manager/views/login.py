@@ -44,7 +44,7 @@ def get_root(request):
 login_schema = {
   'ticket':
     v.type_checker(basestring) &
-    v.format_checker(re.compile(r'^ST-[0-9A-Fr]{29}$')),
+    v.format_checker(re.compile(r'^ST-.*\.cwru\.edu$')),
 }
 
 @view_config(
